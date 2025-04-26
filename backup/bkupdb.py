@@ -48,8 +48,13 @@ def backup_database():
                 found = True
                 src = os.path.join(DB_FOLDER, file)
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                dest = os.path.join(BACKUP_FOLDER, f"{file}_{timestamp}")
+                
+                name, ext = os.path.splitext(file)  # tách tên và đuôi
+                new_filename = f"{name}_{timestamp}{ext}"  # chèn thời gian trước đuôi
+                dest = os.path.join(BACKUP_FOLDER, new_filename)
+
                 shutil.copy2(src, dest)
+        
         if found:
             send_email(True)
         else:
@@ -57,8 +62,9 @@ def backup_database():
     except Exception as e:
         send_email(False, str(e))
 
+
 # Lên lịch chạy lúc 00:00 mỗi ngày
-schedule.every().day.at("21:46").do(backup_database)
+schedule.every().day.at("00:00").do(backup_database)
 
 print("Đang chạy lịch backup mỗi ngày lúc 00:00...")
 while True:
